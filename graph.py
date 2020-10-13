@@ -25,17 +25,24 @@ class Graph():
     def get_number_vertices(self) -> int:
         return self.__number_vertices
 
-    def get_vertex(self, index) -> int: 
+    def get_vertex(self, index : int) -> int: 
         return self.__vertices[index]
 
-    def get_index(self, vertex) -> int:
+    def get_index(self, vertex : int) -> int:
         return self.__map[vertex]
 
-    def get_neighbors(self, index) -> List[int]:
+    def get_neighbors(self, index : int) -> List[int]:
         return self.__graph[index]
 
-    def has_neighbors(self, index) -> bool:
+    def has_neighbors(self, index : int) -> bool:
         return self.__has_out_edges[index]
+
+    def has_vertex(self, vertex : int) -> bool:
+        try:
+            self.__map[vertex]
+        except KeyError:
+            return False 
+        return True
 
     def print_graph(self, filename):
         output = open(filename, "a")

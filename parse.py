@@ -15,6 +15,6 @@ class Parser():
 
         for line in ms.readlines():
             edge = re.findall(r"\d+\.?\d*", line)
-            self.__graph.add_vertex(edge[0])
-            self.__graph.add_vertex(edge[1])
-            self.__graph.add_edge(edge[0],edge[1])
+            self.__graph.add_vertex(int(edge[0]))
+            self.__graph.add_vertex(int(edge[1]))
+            self.__graph.add_edge(int(edge[0]),int(edge[1]))

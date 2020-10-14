@@ -18,9 +18,22 @@ class Graph():
             self.__has_out_edges.append(False)
             self.__number_vertices += 1
 
-    def add_edge(self, source : int, destination : int) :
-        self.__graph[self.__map[source]].append(self.__map[destination])
-        self.__has_out_edges[self.__map[source]] = True
+    def add_edge(self, source : int, destination : int) -> bool:
+        if (self.__map[destination] in self.__graph[self.__map[source]]):
+            return False
+        else:
+            self.__graph[self.__map[source]].append(self.__map[destination])
+            self.__has_out_edges[self.__map[source]] = True
+            return True
+
+    def rm_edge(self, source: int, destination : int) -> bool:
+        if (self.__map[destination] in self.__graph[self.__map[source]]):
+            self.__graph[self.__map[source]].remove(self.__map[destination])
+            if not self.__graph[self.__map[source]]:
+                self.__has_out_edges[self.__map[source]] = False
+            return True
+        else:
+            return False 
 
     def get_number_vertices(self) -> int:
         return self.__number_vertices

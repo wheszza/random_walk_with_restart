@@ -31,41 +31,77 @@ class Calculator():
 
         self.__graph.add_vertex(i)
         self.__graph.add_vertex(j)
-        self.__graph.add_edge(i, j)
+        if not self.__graph.add_edge(i, j):
+            return
 
         i = self.__graph.get_index(i)
         j = self.__graph.get_index(j)
 
         if not has_i and has_j:
             self.__n += 1
-            c = self.__r * self.__P[:,j]
+            c = self.__r * self.__P[:,j:j+1]
             r = np.zeros([1, self.__n])
             self.__P = np.c_[self.__P, c]
             self.__P = np.r_[self.__P, r]
             self.__P[-1][-1] = 1 - self.__r
         elif has_i and not has_j:
             self.__n += 1
-            if self.__graph.has_neighbors(i):
+            if self.__graph.has_neighbors(i) > 1:
                 e = np.zeros([self.__n - 1,1])
                 e[i][0] = 1
-                z = 1 / (len(self.__graph.get_neighbors(i)) + 1) * (
-                    e - (1 - self.__r) * self.__P[:, i]
+                z = 1 / (len(self.__graph.get_neighbors(i))) * (
+                    e - 1 / (1 - self.__r) * self.__P[:, i:i+1]
                 )
-                r = self.__r / len(self.__graph.get_neighbors(i) + 1) * (
-                    self.__P[i] / (1 - z[i][0])
+                print(z)
+                r = self.__r / (len(self.__graph.get_neighbors(i))) * (
+                    self.__P[i:i+1] / (1 - z[i][0])
                 )
                 c = np.zeros([self.__n, 1])
-                self.__P += z * self.__P[i] / (1 - z[i][0])
+                self.__P += z * self.__P[i:i+1] / (1 - z[i][0])
                 self.__P = np.r_[self.__P, r]
                 self.__P = np.c_[self.__P, c]
                 self.__P[-1][-1] = 1 - self.__r
             else:
-                return 0
+                r = r * self.__P[i:i+1]
+                c = np.zeros([self.__n, 1])
+                self.__P = np.r_[self.__P, r]
+                self.__P = np.c_[self.__P, c]
+                self.__P[-1][-1] = 1 - self.__r
         elif has_i and has_j:
-            return 0
+            if len(self.__graph.get_neighbors(i))== 1:
+                y = self.__r * self.__P[:, j:j+1]
+            else:
+                e = np.zeros([self.__n, 1])
+                e[i][0] = 1
+                y = 1 / (len(self.__graph.get_neighbors(i))) * (
+                    self.__r * self.__P[:, j:j+1] - self.__P[:, i:i+1] + (1 - self.__r) * e
+                )
+            self.__P += 1 / (1 - self.__r - y[i][0]) * y * self.__P[i:i+1]
         else:
-            return 0
+            self.__n += 2
+            r = np.zeros([2, self.__n - 2])
+            c = np.zeros([self.__n, 2])
+            self.__P = np.r_[self.__P, r]
+            self.__P = np.c_[self.__P, c]
+            self.__P[-1][-1] = 1 - self.__r
+            self.__P[-2][-2] = 1 - self.__r
+            self.__P[-1][-2] = (1 - self.__r) * self.__r
 
     def unit_delete(self, edge):
-        #code here
+        i, j = edge[0], edge[1]
+
+        if not self.__graph.rm_edge(i, j):
+            return
+
+        i = self.__graph.get_index(i)
+        j = self.__graph.get_index(j)
+        if not self.__graph.has_neighbors(i):
+            y = -self.__r * self.__P[:, j:j+1]
+        else:
+            e = np.zeros([self.__n, 1])
+            e[i][0] = 1
+            y = 1 / (len(self.__graph.get_neighbors(i))) * (
+                self.__P[:,i:i+1] - self.__r * self.__P[:,j:j+1] - (1 - self.__r) * e
+            )
+        self.__P += 1 / (1 - self.__r - y[i][0]) * y * self.__P[i:i+1]
         return 0
